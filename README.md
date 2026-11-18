@@ -1,2 +1,3 @@
-# full-backup
-View Logfiles generated from backup shell script
+# Full-Backup: My Linux system backup-script log files
+## ! Only for personal use !
+## All log file lists are password protected archives
