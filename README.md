@@ -6,4 +6,7 @@
 - HTML log file uploaded to GitHub page, eMail report sent with 'msmtp' CLI mail tool.
 - Bash backup script with Python3 for eMail composing and 'rsync' for all file transfer operations.
 
+2026 -=by Lennart Martens=-
+
+
 
