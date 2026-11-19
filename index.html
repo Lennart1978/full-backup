@@ -13,11 +13,10 @@ layout: none
 
 <body>
   <main>
-    <p><img src="bild_192x192.png" alt="Face" width="192" height="192"></p>
-    <p><i>(c)2026 by Lennart Martens</i></p>
-    <p>
-    <h1>▁ ▂ ▄ ▅ ▆ ▇ █ [ Backup Protokolle: ] █ ▇ ▆ ▅ ▄ ▂ ▁</h1>
-    </p>
+    <p align="center"><img src="bild_192x192.png" alt="Face" width="192" height="192"></p>
+    <p align="center"><i>(c)2026 by Lennart Martens</i></p>
+    <p align="center"><h1>▁ ▂ ▄ ▅ ▆ ▇ █ [ Backup Protokolle: ] █ ▇ ▆ ▅ ▄ ▂ ▁</h1></p>
+    
     {%- assign logs = "" | split: "" -%}
     {%- assign index_files = site.static_files | where: "name", "index.html" -%}
     {%- for file in index_files -%}
