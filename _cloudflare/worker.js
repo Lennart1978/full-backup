@@ -1,6 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 import manifest from "../.dashboard-dist/manifest.json";
-import { deletionAccess, DASHBOARD_ORIGIN } from "./access.js";
+import { deletionAccess, DASHBOARD_ORIGIN, missingDeletionSecrets } from "./access.js";
 import { removeReportFolder } from "./github.js";
 
 function json(body, status = 200) {
@@ -152,7 +152,12 @@ export default {
       if (request.method !== "GET") return new Response(null, { status: 405, headers: { Allow: "GET" } });
       const [response, access] = await Promise.all([archive.fetch(request), deletionAccess(request, env)]);
       if (response.status !== 200) return response;
-      return json({ ...(await response.json()), canDelete: access === "allowed", deletionAccess: access });
+      return json({
+        ...(await response.json()),
+        canDelete: access === "allowed",
+        deletionAccess: access,
+        missingSecrets: access === "configuration" ? missingDeletionSecrets(env) : [],
+      });
     }
     if (path.startsWith("/api/runs/")) {
       if (request.method !== "DELETE") {

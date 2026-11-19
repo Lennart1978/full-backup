@@ -59,7 +59,7 @@ nav,
 .page-title,
 .panel-heading,
 .file-row,
-.details-foot {
+.report-actions {
   display: flex;
   align-items: center;
 }
@@ -443,7 +443,7 @@ summary::-webkit-details-marker {
 summary:hover {
   background: var(--raised);
 }
-details + details {
+.report-entry + .report-entry {
   border-top: 1px solid var(--line);
 }
 .stamp b {
@@ -502,13 +502,17 @@ details[open] .chev {
   text-align: left;
 }
 .details-foot {
-  gap: 0.6rem;
-  justify-content: space-between;
-  flex-wrap: wrap;
   font-size: 0.9rem;
   padding-top: 0.9rem;
 }
-.details-foot a {
+.report-actions {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem 1rem;
+  padding: 0 0.65rem 0.7rem;
+  font-size: 0.9rem;
+}
+.report-actions a {
   font-weight: 650;
 }
 .scroll {

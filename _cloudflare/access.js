@@ -6,9 +6,15 @@ function decode(segment) {
   return Uint8Array.from(atob(segment.replaceAll("-", "+").replaceAll("_", "/")), (c) => c.charCodeAt(0));
 }
 
+export function missingDeletionSecrets(env) {
+  return ["BACKUP_DELETE_EMAIL", "BACKUP_DELETE_TOKEN"].filter(
+    (name) => typeof env[name] !== "string" || !env[name].trim(),
+  );
+}
+
 export async function deletionAccess(request, env) {
   if (new URL(request.url).origin !== DASHBOARD_ORIGIN) return "preview";
-  if (!env.BACKUP_DELETE_TOKEN?.trim() || !env.BACKUP_DELETE_EMAIL?.trim()) return "configuration";
+  if (missingDeletionSecrets(env).length) return "configuration";
 
   // Browser requests can carry the signed app token in the Access cookie.
   const token =

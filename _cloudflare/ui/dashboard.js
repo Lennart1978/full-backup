@@ -133,12 +133,35 @@ function drawChanges() {
 const deletionDialog = $("delete-dialog");
 const deleteCancel = $("delete-cancel");
 const deleteConfirm = $("delete-confirm");
+const deleteDescription = $("delete-description").textContent.trim();
 let selectedReport;
 
-function confirmDeletion(report) {
-  selectedReport = report;
+function deletionReason(result) {
+  if (result.canDelete) return "";
+  if (result.deletionAccess === "configuration") {
+    const names = result.missingSecrets || [];
+    let reason = "Die Löschfunktion ist noch nicht eingerichtet.";
+    if (names.length === 1) reason = "Im Produktions-Worker fehlt " + names[0] + ".";
+    if (names.length > 1) reason = "Im Produktions-Worker fehlen " + names.join(" und ") + ".";
+    return reason + " Ergänze die fehlenden Secrets beim Worker full-backup unter „Settings → Variables and Secrets“ und wähle „Deploy“.";
+  }
+  const messages = {
+    preview: "Öffne zum Löschen das Dashboard unter full-backup.eisenfeld.workers.dev.",
+    session: "Melde dich über Cloudflare Access am Backup-Dashboard an und lade die Seite erneut.",
+    email: "Deine Cloudflare-Access-Adresse stimmt nicht mit BACKUP_DELETE_EMAIL im Produktions-Worker überein.",
+    verification: "Cloudflare Access konnte die Löschberechtigung gerade nicht prüfen. Lade die Seite erneut.",
+  };
+  return messages[result.deletionAccess] || "Die Löschberechtigung ist noch unbekannt. Lade die Seite erneut.";
+}
+
+function showDeletion(report, reason) {
+  selectedReport = reason ? null : report;
+  $("delete-title").textContent = reason ? "Löschen nicht verfügbar" : "Protokoll löschen?";
   $("delete-target").textContent =
     typeName(report.type) + " · " + date(report.day) + " · " + time(report) + " · Lauf " + report.run;
+  $("delete-description").textContent = reason || deleteDescription;
+  deleteConfirm.hidden = Boolean(reason);
+  deleteCancel.textContent = reason ? "Schließen" : "Abbrechen";
   $("delete-error").textContent = "";
   deletionDialog.showModal();
 }
@@ -150,6 +173,7 @@ deletionDialog.addEventListener("cancel", (event) => {
 
 deleteConfirm.onclick = async () => {
   const report = selectedReport;
+  if (!report || deleteConfirm.disabled) return;
   deleteCancel.disabled = deleteConfirm.disabled = true;
   deleteConfirm.textContent = "Wird gelöscht …";
   $("delete-error").textContent = "";
@@ -177,7 +201,7 @@ deleteConfirm.onclick = async () => {
   }
 };
 
-function jobTable(r, canDelete) {
+function jobTable(r) {
   const detail = element("div", null, "detail"),
     scroll = element("div", null, "scroll");
   const table = element("table"),
@@ -199,31 +223,21 @@ function jobTable(r, canDelete) {
   }
   scroll.append(table);
   detail.append(element("h3", "Rsync-Ergebnisse"), scroll);
-  const foot = element("div", null, "details-foot"),
-    link = element("a", "Protokoll öffnen");
-  link.href = "/" + encodeURIComponent(r.id) + "/";
-  foot.append(
+  detail.append(
     element(
-      "span",
+      "p",
       typeName(r.type) +
         " · " +
         duration(r.seconds) +
         " · SSD frei: " +
         (r.freeGiB == null ? missing : r.freeGiB + " GiB"),
+      "details-foot",
     ),
-    link,
   );
-  if (canDelete && r.tree) {
-    const button = element("button", "Protokoll löschen", "delete-link");
-    button.type = "button";
-    button.onclick = () => confirmDeletion(r);
-    foot.append(button);
-  }
-  detail.append(foot);
   return detail;
 }
 
-function drawReports(canDelete) {
+function drawReports(reason) {
   const container = $("runs");
   container.replaceChildren();
   $("matches").textContent = number(runs.length) + (runs.length === 1 ? " Protokoll" : " Protokolle");
@@ -236,7 +250,8 @@ function drawReports(canDelete) {
     head.append(element("span", label));
   container.append(head);
   for (const r of runs) {
-    const details = element("details"),
+    const entry = element("article", null, "report-entry"),
+      details = element("details"),
       row = element("summary", null, "run-grid");
     const stamp = element("span", null, "stamp");
     stamp.append(element("b", date(r.day)), element("small", time(r) + " · Lauf " + r.run));
@@ -252,9 +267,19 @@ function drawReports(canDelete) {
     );
     details.append(row);
     details.addEventListener("toggle", () => {
-      if (details.open && details.children.length === 1) details.append(jobTable(r, canDelete));
+      if (details.open && details.children.length === 1) details.append(jobTable(r));
     });
-    container.append(details);
+    const actions = element("div", null, "report-actions");
+    const link = element("a", "Protokoll öffnen");
+    link.href = "/" + encodeURIComponent(r.id) + "/";
+    const button = element("button", "Protokoll löschen", "delete-link");
+    button.type = "button";
+    button.setAttribute("aria-haspopup", "dialog");
+    const versionHint = r.tree ? "" : "Für diesen Lauf fehlt die Berichtsversion. Lade das Dashboard nach dem nächsten Build erneut.";
+    button.onclick = () => showDeletion(r, reason || versionHint);
+    actions.append(link, button);
+    entry.append(details, actions);
+    container.append(entry);
   }
 }
 
@@ -298,17 +323,9 @@ async function refresh() {
     drawMetrics();
     drawChart();
     drawChanges();
-    drawReports(result.canDelete);
-    const deletionMessages = {
-      configuration:
-        "Löschen ist noch nicht verfügbar. Im Worker fehlt die E-Mail-Adresse oder der GitHub-Token.",
-      session: "Löschen ist erst nach einer persönlichen Anmeldung über Cloudflare Access verfügbar.",
-      email:
-        "Deine Cloudflare-Access-Adresse stimmt nicht mit der für das Löschen hinterlegten Adresse überein.",
-      verification:
-        "Cloudflare Access konnte die Löschberechtigung gerade nicht prüfen. Lade die Seite erneut.",
-    };
-    $("delete-availability").textContent = deletionMessages[result.deletionAccess] || "";
+    const reason = deletionReason(result);
+    drawReports(reason);
+    $("delete-availability").textContent = reason;
     $("message").textContent = "";
     $("content").hidden = false;
   } catch (error) {

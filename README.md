@@ -51,7 +51,10 @@ Variables and Secrets** zwei Secrets konfigurieren.
 - `BACKUP_DELETE_TOKEN` ist ein Fine-grained GitHub-Token für das Repository
   `Lennart1978/full-backup` mit **Contents: Read and write**.
 
-Der Löschbutton erscheint in den Details des jeweiligen Laufs. Der Worker
+Mit **Deploy** werden die Laufzeit-Secrets für den Produktions-Worker wirksam.
+Jeder Lauf zeigt **Protokoll öffnen** und **Protokoll löschen** bereits in der
+Liste. Bei fehlenden Secrets nennt das Dashboard die betroffenen Namen.
+Vor dem Löschen zeigt es den ausgewählten Lauf zur Bestätigung an. Der Worker
 prüft das signierte Access-Token für die Produktionsadresse und vergleicht
 die Version des Berichtsordners vor dem Löschen mit GitHub. Ein einzelner
 Commit entfernt den gesamten Ordner aus `main`. Der Cloudflare-Worker
