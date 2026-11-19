@@ -16,6 +16,7 @@ layout: none
     <p align="center"><img src="bild_192x192.png" alt="Face" width="192" height="192"></p>
     <p align="center"><i>(c)2026 by Lennart Martens</i></p>
     <h1 align="center">▁ ▂ ▄ ▅ ▆ ▇ █ [ Backup Protokolle: ] █ ▇ ▆ ▅ ▄ ▂ ▁</h1>
+    <hr />
 
     {%- assign logs = "" | split: "" -%}
     {%- assign index_files = site.static_files | where: "name", "index.html" -%}
@@ -57,6 +58,7 @@ layout: none
       {% else %}
       <p>Keine Backup-Protokolle vorhanden.</p>
       {% endif %}
+      <hr />
       <strong style="color:lime; font-size:12px;"><u>-=Rsync: Symbol-Legende=-</u><br></strong>
       <span style="display:inline-block; min-width:260px; margin-right:30px;">
         <strong style="color:fuchsia;">Aktion:</strong>
