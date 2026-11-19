@@ -11,7 +11,7 @@ body {
 }
 
 li {
-    margin: .6rem 0
+    margin: .6rem 0;
 }
 
 a {
@@ -21,4 +21,8 @@ a {
 img {
     border: solid grey;
     float: none
+}
+
+p {
+    vertical-align:center
 }
