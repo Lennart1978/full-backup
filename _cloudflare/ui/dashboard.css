@@ -1,14 +1,17 @@
 :root {
   font-family: Inter, "Segoe UI", system-ui, sans-serif;
-  color: #19283e;
-  background: #f5f7fa;
+  color-scheme: dark;
+  color: #eaf0fa;
+  background: #0b111c;
   font-size: 100%;
-  --blue: #2359cb;
-  --muted: #56667c;
-  --line: #d9e1eb;
-  --green: #14755a;
-  --red: #b43f4b;
-  --ink: #13243a;
+  --blue: #a1bbff;
+  --muted: #a8b7cb;
+  --line: #2a3950;
+  --green: #81dfbd;
+  --surface: #141e2e;
+  --inset: #0e1725;
+  --raised: #1d2a3f;
+  --control-border: #536783;
 }
 * {
   box-sizing: border-box;
@@ -46,7 +49,8 @@ a {
   margin: auto;
 }
 header {
-  background: var(--ink);
+  background: var(--inset);
+  border-bottom: 1px solid var(--line);
   color: #fff;
 }
 .nav,
@@ -120,6 +124,18 @@ nav a[aria-current] {
   justify-content: space-between;
   gap: 0.8rem;
 }
+.title-group {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.75rem, 2vw, 1.25rem);
+}
+.portrait {
+  width: clamp(3rem, 8vw, 5rem);
+  height: auto;
+  flex: none;
+  border: 1px solid var(--control-border);
+  border-radius: 14px;
+}
 .eyebrow {
   font-size: 0.75rem;
   font-weight: 750;
@@ -146,12 +162,12 @@ h1 {
   display: block;
   font-size: 0.98rem;
   margin-top: 3px;
-  color: var(--ink);
+  color: #eaf0fa;
 }
 form,
 .metrics article,
 .panel {
-  background: white;
+  background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 13px;
 }
@@ -173,27 +189,35 @@ select,
 form button {
   width: 100%;
   min-width: 0;
-  border: 1px solid #bcc9d8;
+  border: 1px solid var(--control-border);
   border-radius: 6px;
-  background: white;
+  background: var(--inset);
   padding: 0.52rem 0.65rem;
   font-weight: 450;
   min-height: 2.6rem;
   font-size: 0.95rem;
 }
+input::placeholder {
+  color: var(--muted);
+}
 select {
   appearance: none;
-  background:
-    linear-gradient(45deg, transparent 50%, #596980 50%) calc(100% - 15px) 52%/5px 5px no-repeat,
-    linear-gradient(135deg, #596980 50%, transparent 50%) calc(100% - 10px) 52%/5px 5px no-repeat;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 15px) 52%,
+    calc(100% - 10px) 52%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
   padding-right: 1.8rem;
 }
 form button {
-  color: #384b62;
-  background: #f6f8fb;
+  color: #dce6f6;
+  background: var(--raised);
 }
 button:hover {
-  filter: brightness(0.95);
+  filter: brightness(1.17);
 }
 #message {
   font-size: 0.95rem;
@@ -248,20 +272,20 @@ button:hover {
   display: grid;
   place-content: center;
   font-weight: bold;
-  background: #e7efff;
+  background: #253a63;
   color: var(--blue);
 }
 article:first-child .metric-icon {
-  background: #dcf4e9;
+  background: #173c35;
   color: var(--green);
 }
 article:nth-child(3) .metric-icon {
-  background: #eceafa;
-  color: #6852b9;
+  background: #372c53;
+  color: #c8b1ff;
 }
 article:nth-child(4) .metric-icon {
-  background: #dff4f3;
-  color: #197468;
+  background: #193a43;
+  color: #9ce0e7;
 }
 .panels {
   grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr);
@@ -283,7 +307,7 @@ article:nth-child(4) .metric-icon {
 }
 .switch {
   display: flex;
-  background: #eef2f7;
+  background: var(--inset);
   border-radius: 7px;
   padding: 3px;
 }
@@ -296,9 +320,9 @@ article:nth-child(4) .metric-icon {
   font-size: 0.84rem;
 }
 .switch button[aria-pressed="true"] {
-  background: white;
+  background: var(--raised);
   color: var(--blue);
-  box-shadow: 0 1px 4px #152d5026;
+  box-shadow: 0 1px 4px #0005;
 }
 #chart {
   margin-top: 1.1rem;
@@ -322,7 +346,7 @@ article:nth-child(4) .metric-icon {
   flex-direction: column;
   justify-content: flex-end;
   align-items: center;
-  background: repeating-linear-gradient(to top, #e6ecf3 0 1px, transparent 1px 35px);
+  background: repeating-linear-gradient(to top, var(--line) 0 1px, transparent 1px 35px);
 }
 .track b,
 .axis {
@@ -331,12 +355,12 @@ article:nth-child(4) .metric-icon {
 }
 .bar {
   width: clamp(14px, 45%, 65px);
-  background: #4474dc;
+  background: #5d85e6;
   border-radius: 4px 4px 0 0;
   margin-top: 3px;
 }
 .chart-col:last-child .bar {
-  background: #224eac;
+  background: #9fb9ff;
 }
 .axis {
   color: var(--muted);
@@ -358,7 +382,7 @@ article:nth-child(4) .metric-icon {
   margin-bottom: 0.25rem;
 }
 .meter {
-  background: #edf1f5;
+  background: var(--raised);
   height: 6px;
   border-radius: 8px;
   overflow: hidden;
@@ -369,13 +393,13 @@ article:nth-child(4) .metric-icon {
   border-radius: 8px;
 }
 .added {
-  background: #259273;
+  background: #60cba6;
 }
 .changed {
-  background: #5180e3;
+  background: #7c9df1;
 }
 .deleted {
-  background: #d17a60;
+  background: #eca586;
 }
 .note {
   font-size: 0.8rem;
@@ -404,7 +428,7 @@ article:nth-child(4) .metric-icon {
   font-size: 0.8rem;
   color: var(--muted);
   padding: 0.6rem 0.65rem;
-  background: #f4f6f9;
+  background: var(--inset);
   border-radius: 5px;
   font-weight: 650;
 }
@@ -417,7 +441,7 @@ summary::-webkit-details-marker {
   display: none;
 }
 summary:hover {
-  background: #f7f9fc;
+  background: var(--raised);
 }
 details + details {
   border-top: 1px solid var(--line);
@@ -432,18 +456,18 @@ details + details {
   justify-self: start;
   padding: 0.22rem 0.55rem;
   border-radius: 5px;
-  background: #edf0f5;
+  background: var(--raised);
   color: var(--muted);
   font-size: 0.82rem;
   font-weight: 650;
 }
 .ok {
-  background: #e0f4e9;
-  color: #126444;
+  background: #193e35;
+  color: var(--green);
 }
 .error {
-  background: #ffeaeb;
-  color: #9a293b;
+  background: #482733;
+  color: #ffb2bc;
 }
 .chev {
   color: var(--muted);
@@ -453,7 +477,7 @@ details[open] .chev {
   transform: rotate(180deg);
 }
 .detail {
-  background: #f5f8fc;
+  background: var(--inset);
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 0.75rem;
@@ -537,6 +561,9 @@ footer {
     align-items: flex-start;
     flex-direction: column;
     padding: 1.4rem 0 1rem;
+  }
+  h1 {
+    font-size: clamp(1.5rem, 5.85vw, 2.25rem);
   }
   #latest {
     text-align: left;
