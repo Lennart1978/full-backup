@@ -3,63 +3,60 @@ layout: none
 ---
 <!doctype html>
 <html lang="de">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>ᴮᵃᶜᵏᵘᵖ ᴾʳᵒᵗᵒᵏᵒˡˡᵉ</title>
-  <style>body{background:black;color:#fff;font:1rem/1.6 system-ui,sans-serif;max-width:48rem;margin:3rem auto;padding:0 1rem}li{margin:.6rem 0}a{color:#7dd3fc}img{border: solid grey;float:none}</style>
+  <link rel="stylesheet" href="log_style.css">
 </head>
+
 <body>
   <main>
-  <p align="center"><img src="bild_192x192.png" alt="Face" width="192" height="192"></p>
-  <p align="center"><i>(c)2026 by Lennart Martens</i></p>
+    <p align="center"><img src="bild_192x192.png" alt="Face" width="192" height="192"></p>
+    <p align="center"><i>(c)2026 by Lennart Martens</i></p>
     <h1>▁ ▂ ▄ ▅ ▆ ▇ █ [ Backup Protokolle: ] █ ▇ ▆ ▅ ▄ ▂ ▁</h1>
     {%- assign logs = "" | split: "" -%}
     {%- assign index_files = site.static_files | where: "name", "index.html" -%}
     {%- for file in index_files -%}
-      {%- assign path_parts = file.path | split: "/" -%}
-      {%- assign folder = path_parts[1] -%}
-      {%- assign folder_parts = folder | split: "_backup_log_" -%}
-      {%- unless path_parts.size == 3 and folder_parts.size == 2 -%}
-        {%- continue -%}
-      {%- endunless -%}
+    {%- assign path_parts = file.path | split: "/" -%}
+    {%- assign folder = path_parts[1] -%}
+    {%- assign folder_parts = folder | split: "_backup_log_" -%}
+    {%- unless path_parts.size == 3 and folder_parts.size == 2 -%}
+    {%- continue -%}
+    {%- endunless -%}
 
-      {%- assign backup_name = folder_parts | first | capitalize -%}
-      {%- assign suffix = folder_parts | last | split: "_" -%}
-      {%- assign date_parts = suffix[0] | split: "-" -%}
-      {%- assign day = date_parts[0] -%}
-      {%- assign month = date_parts[1] -%}
-      {%- assign year = date_parts[2] -%}
-      {%- assign iso_date = year | append: "-" | append: month | append: "-" | append: day -%}
-      {%- assign date_digits = iso_date | remove: "-" -%}
-      {%- assign parsed_date = iso_date | date: "%Y%m%d" -%}
-      {%- unless date_parts.size == 3 and parsed_date == date_digits and date_digits.size == 8 and suffix.size <= 2 -%}
-        {%- continue -%}
-      {%- endunless -%}
-      {%- assign run = suffix[1] | default: "1" -%}
-      {%- assign run_number = run | plus: 0 | append: "" -%}
-      {%- unless run_number == run -%}
-        {%- continue -%}
-      {%- endunless -%}
-
-      {%- comment -%} Sort by year, month, day and numeric run number. {%- endcomment -%}
-      {%- assign run_digits = run.size | prepend: "000" | slice: -3, 3 -%}
-      {%- capture log -%}
-        {{ date_digits }}-{{ run_digits }}-{{ run }}
-        <li><a href="./{{ folder | cgi_escape | replace: '+', '%20' }}/index.html">{{ backup_name | escape }} - Backup Log vom {{ day }}.{{ month }}.{{ year }}{% if suffix[1] %} (Lauf {{ run }}){% endif %}</a></li>
+    {%- assign backup_name = folder_parts | first | capitalize -%}
+    {%- assign suffix = folder_parts | last | split: "_" -%}
+    {%- assign date_parts = suffix[0] | split: "-" -%}
+    {%- assign day = date_parts[0] -%}
+    {%- assign month = date_parts[1] -%}
+    {%- assign year = date_parts[2] -%}
+    {%- assign iso_date = year | append: "-" | append: month | append: "-" | append: day -%}
+    {%- assign date_digits = iso_date | remove: "-" -%}
+    {%- assign parsed_date = iso_date | date: "%Y%m%d" -%}
+    {%- unless date_parts.size == 3 and parsed_date == date_digits and date_digits.size == 8 and suffix.size <= 2 -%}
+      {%- continue -%} {%- endunless -%} {%- assign run=suffix[1] | default: "1" -%} {%- assign run_number=run | plus: 0
+      | append: "" -%} {%- unless run_number==run -%} {%- continue -%} {%- endunless -%} {%- comment -%} Sort by year,
+      month, day and numeric run number. {%- endcomment -%} {%- assign run_digits=run.size | prepend: "000" | slice: -3,
+      3 -%} {%- capture log -%} {{ date_digits }}-{{ run_digits }}-{{ run }} <li><a
+        href="./{{ folder | cgi_escape | replace: '+', '%20' }}/index.html">{{ backup_name | escape }} - Backup Log vom
+        {{ day }}.{{ month }}.{{ year }}{% if suffix[1] %} (Lauf {{ run }}){% endif %}</a></li>
       {%- endcapture -%}
       {%- assign logs = logs | push: log -%}
-    {%- endfor %}
-    {% if logs.size > 0 %}
-    <ol type="I">
-      {%- assign logs = logs | sort | reverse -%}
-      {% for log in logs %}
-      {{ log | strip | split: "<li>" | last | prepend: "<li>" }}
       {%- endfor %}
-    </ol>
-    {% else %}
-    <p>Keine Backup-Protokolle vorhanden.</p>
-    {% endif %}
+      {% if logs.size > 0 %}
+      <ol type="I">
+        {%- assign logs = logs | sort | reverse -%}
+        {% for log in logs %}
+        {{ log | strip | split: "<li>" | last | prepend: "
+        <li>" }}
+          {%- endfor %}
+      </ol>
+      {% else %}
+      <p>Keine Backup-Protokolle vorhanden.</p>
+      {% endif %}
   </main>
 </body>
+
 </html>

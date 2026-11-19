@@ -1,0 +1,24 @@
+body {
+    background-color: black;
+    color: #ffffff;
+    font-family: 'FiraCode Nerd Font', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+li {
+    margin: .6rem 0
+}
+
+a {
+    color: yellow
+}
+
+img {
+    border: solid grey;
+    float: none
+}
