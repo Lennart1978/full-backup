@@ -1,5 +1,7 @@
 import { DurableObject } from "cloudflare:workers";
 import manifest from "../.dashboard-dist/manifest.json";
+import { canDelete, DASHBOARD_ORIGIN } from "./access.js";
+import { removeReportFolder } from "./github.js";
 
 function json(body, status = 200) {
   return Response.json(body, { status, headers: { "Cache-Control": "private, no-store" } });
@@ -11,36 +13,71 @@ export class BackupArchive extends DurableObject {
     this.sql = ctx.storage.sql;
     this.sql.exec(`CREATE TABLE IF NOT EXISTS runs (
       id TEXT PRIMARY KEY, digest TEXT NOT NULL, day TEXT NOT NULL, type TEXT NOT NULL,
-      summary TEXT NOT NULL, log TEXT NOT NULL
+      summary TEXT NOT NULL, log TEXT NOT NULL, report_tree TEXT
+    )`);
+    if (
+      !this.sql
+        .exec("PRAGMA table_info(runs)")
+        .toArray()
+        .some((column) => column.name === "report_tree")
+    ) {
+      this.sql.exec("ALTER TABLE runs ADD COLUMN report_tree TEXT");
+    }
+    this.sql.exec(`CREATE TABLE IF NOT EXISTS deleted_reports (
+      id TEXT NOT NULL, report_tree TEXT NOT NULL, PRIMARY KEY (id, report_tree)
     )`);
     const stored = new Map(
       this.sql
-        .exec("SELECT id, digest FROM runs")
+        .exec("SELECT id, digest, report_tree FROM runs")
         .toArray()
-        .map((r) => [r.id, r.digest]),
+        .map((r) => [r.id, r]),
     );
-    this.pending = Object.entries(manifest).filter(([id, digest]) => stored.get(id) !== digest);
+    this.pending = Object.entries(manifest).filter(
+      ([id, { digest, tree }]) =>
+        !this.wasDeleted(id, tree) &&
+        (stored.get(id)?.digest !== digest || stored.get(id)?.report_tree !== tree),
+    );
     // A removed report must disappear from search on the same deployment.
     for (const id of stored.keys()) {
       if (!Object.hasOwn(manifest, id)) this.sql.exec("DELETE FROM runs WHERE id = ?", id);
     }
   }
 
+  wasDeleted(id, tree) {
+    return (
+      this.sql.exec("SELECT 1 FROM deleted_reports WHERE id = ? AND report_tree = ?", id, tree).toArray()
+        .length > 0
+    );
+  }
+
+  async deleteRun(id, tree) {
+    if (this.wasDeleted(id, tree)) return true;
+    if (!(await removeReportFolder(this.env.BACKUP_DELETE_TOKEN, id, tree))) return false;
+    this.ctx.storage.transactionSync(() => {
+      this.sql.exec("INSERT OR IGNORE INTO deleted_reports VALUES (?, ?)", id, tree);
+      this.sql.exec("DELETE FROM runs WHERE id = ? AND report_tree = ?", id, tree);
+    });
+    return true;
+  }
+
   async importBatch() {
     // Bound the number of asset reads even on the first import of a large archive.
-    for (const [id, digest] of this.pending.slice(0, 12)) {
+    for (const [id, { digest, tree }] of this.pending.slice(0, 12)) {
       const response = await this.env.ASSETS.fetch("https://assets.local/_import/" + digest + ".json");
       if (!response.ok) throw new Error("Berichtsimport fehlgeschlagen");
       const { summary, text } = await response.json();
-      this.sql.exec(
-        "INSERT OR REPLACE INTO runs VALUES (?, ?, ?, ?, ?, ?)",
-        id,
-        digest,
-        summary.day,
-        summary.type,
-        JSON.stringify(summary),
-        text,
-      );
+      if (!this.wasDeleted(id, tree)) {
+        this.sql.exec(
+          "INSERT OR REPLACE INTO runs (id, digest, day, type, summary, log, report_tree) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          id,
+          digest,
+          summary.day,
+          summary.type,
+          JSON.stringify(summary),
+          text,
+          tree,
+        );
+      }
       this.pending.shift();
     }
   }
@@ -85,12 +122,12 @@ export class BackupArchive extends DurableObject {
     }
     const where = conditions.length ? "WHERE " + conditions.join(" AND ") : "";
     const rows = this.sql.exec(
-      `SELECT summary FROM runs ${where}
+      `SELECT summary, report_tree FROM runs ${where}
       ORDER BY day DESC, json_extract(summary, '$.start') DESC, json_extract(summary, '$.run') DESC, id`,
       ...values,
     );
     return json({
-      runs: rows.toArray().map((row) => JSON.parse(row.summary)),
+      runs: rows.toArray().map((row) => ({ ...JSON.parse(row.summary), tree: row.report_tree })),
       types: this.sql
         .exec("SELECT DISTINCT type FROM runs ORDER BY type")
         .toArray()
@@ -101,12 +138,60 @@ export class BackupArchive extends DurableObject {
 
 export default {
   async fetch(request, env) {
-    const path = new URL(request.url).pathname;
+    const url = new URL(request.url);
+    let path;
+    try {
+      // Reject encoded separators so asset lookup and report routing agree.
+      if (/%2f|%5c/i.test(url.pathname)) return new Response(null, { status: 400 });
+      path = decodeURIComponent(url.pathname);
+    } catch {
+      return new Response(null, { status: 400 });
+    }
+    const archive = env.ARCHIVE.getByName("backup-reports");
     if (path === "/api/runs") {
       if (request.method !== "GET") return new Response(null, { status: 405, headers: { Allow: "GET" } });
-      return env.ARCHIVE.getByName("backup-reports").fetch(request);
+      const [response, authorized] = await Promise.all([archive.fetch(request), canDelete(request, env)]);
+      if (response.status !== 200) return response;
+      return json({ ...(await response.json()), canDelete: authorized });
+    }
+    if (path.startsWith("/api/runs/")) {
+      if (request.method !== "DELETE") {
+        return new Response(null, { status: 405, headers: { Allow: "DELETE" } });
+      }
+      if (request.headers.get("Origin") !== DASHBOARD_ORIGIN || !(await canDelete(request, env))) {
+        return json({ error: "Für das Löschen fehlt die Berechtigung." }, 403);
+      }
+      const id = path.slice("/api/runs/".length);
+      const tree = Object.hasOwn(manifest, id) ? manifest[id].tree : null;
+      if (!tree)
+        return json({ error: "Dieses Protokoll ist nicht mehr verfügbar. Lade die Übersicht neu." }, 404);
+      if (request.headers.get("If-Match") !== `"${tree}"`) {
+        return json({ error: "Das Protokoll wurde geändert. Lade die Übersicht neu." }, 412);
+      }
+      try {
+        if (!(await archive.deleteRun(id, tree))) {
+          return json(
+            { error: "Das Protokoll wurde auf GitHub geändert. Warte auf den nächsten Build." },
+            409,
+          );
+        }
+        return json({ deleted: id });
+      } catch (error) {
+        console.error("Löschen des Backup-Protokolls fehlgeschlagen:", error.message);
+        return json({ error: "Die Löschung konnte nicht bestätigt werden. Versuche es erneut." }, 502);
+      }
     }
     if (path.startsWith("/api/")) return json({ error: "Unbekannter API-Pfad." }, 404);
+    const folder = path.split("/")[1];
+    if (folder === "_import") return new Response(null, { status: 404 });
+    if (Object.hasOwn(manifest, folder)) {
+      if (await archive.wasDeleted(folder, manifest[folder].tree)) {
+        return new Response(null, { status: 404, headers: { "Cache-Control": "no-store" } });
+      }
+      const asset = new Response(await env.ASSETS.fetch(request));
+      asset.headers.set("Cache-Control", "private, no-store");
+      return asset;
+    }
     return env.ASSETS.fetch(request);
   },
 };

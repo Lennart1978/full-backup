@@ -106,13 +106,29 @@
         </div>
         <section class="panel logs" id="protokolle">
           <div class="panel-heading">
-            <h2>Backup-Protokolle</h2>
+            <h2 id="reports-title" tabindex="-1">Backup-Protokolle</h2>
             <span id="matches"></span>
           </div>
+          <p id="delete-notice" class="delete-notice" role="status"></p>
           <div id="runs"></div>
         </section>
       </div>
     </main>
+    <dialog id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description">
+      <h2 id="delete-title">Protokoll löschen?</h2>
+      <p id="delete-target"></p>
+      <p id="delete-description">
+        Der veröffentlichte Berichtsordner wird mit allen zugehörigen Dateien gelöscht. GitHub Pages übernimmt
+        die Änderung beim nächsten Build.
+      </p>
+      <p id="delete-error" role="alert"></p>
+      <div class="delete-actions">
+        <button id="delete-cancel" class="dialog-button" type="button" autofocus>Abbrechen</button>
+        <button id="delete-confirm" class="dialog-button danger-button" type="button">
+          Protokoll löschen
+        </button>
+      </div>
+    </dialog>
     <footer class="wrap">Full Backup · Lennart Martens</footer>
   </body>
 </html>

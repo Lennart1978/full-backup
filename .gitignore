@@ -13,3 +13,5 @@ vendor/
 .dashboard-dist/
 .wrangler/
 node_modules/
+.dev.vars*
+.env*

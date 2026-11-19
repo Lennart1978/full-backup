@@ -3,6 +3,7 @@ import hashlib
 import json
 import re
 import shutil
+import subprocess
 from datetime import datetime
 from html.parser import HTMLParser
 from pathlib import Path
@@ -130,6 +131,22 @@ def report(path, name, date, run):
     return {"summary": summary, "text": text.casefold()}
 
 
+def report_trees():
+    """Read the Git tree IDs of the report folders included in this deployment."""
+    if not (ROOT / ".git").exists():
+        return {}
+    entries = subprocess.check_output(["git", "ls-tree", "-z", "HEAD"], cwd=ROOT)
+    trees = {}
+    for entry in entries.decode("utf-8").split("\0"):
+        if not entry:
+            continue
+        metadata, name = entry.split("\t", 1)
+        _, kind, sha = metadata.split()
+        if kind == "tree" and FOLDER.fullmatch(name):
+            trees[name] = sha
+    return trees
+
+
 def build():
     assets = DIST / "assets"
     if assets.exists():
@@ -140,6 +157,7 @@ def build():
     for shared in ("log_style.css", "bild_192x192.png"):
         shutil.copy2(ROOT / shared, assets / shared)
     manifest = {}
+    trees = report_trees()
     for page in sorted(ROOT.glob("*_backup_log_*/index.html")):
         match = FOLDER.fullmatch(page.parent.name)
         if not match:
@@ -151,7 +169,7 @@ def build():
         record = report(page, match[1], date, int(match[3] or 1))
         payload = json.dumps(record, ensure_ascii=False).encode("utf-8")
         digest = hashlib.sha256(payload).hexdigest()
-        manifest[page.parent.name] = digest
+        manifest[page.parent.name] = {"digest": digest, "tree": trees.get(page.parent.name)}
         (imports / f"{digest}.json").write_bytes(payload)
         dest = assets / page.parent.name
         dest.mkdir()

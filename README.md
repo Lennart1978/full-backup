@@ -41,3 +41,21 @@ npx wrangler@4 dev
 Für das Deployment des bestehenden Workers gilt `npx wrangler@4 deploy`.
 Der Cloudflare-Build erstellt seine eigenen Assets in `.dashboard-dist/`.
 GitHub Pages baut die Archivseite weiter mit Jekyll.
+
+### Berichtsordner löschen
+
+Für die Löschfunktion unter **Workers & Pages → full-backup → Settings →
+Variables and Secrets** zwei Secrets konfigurieren.
+
+- `BACKUP_DELETE_EMAIL` ist die E-Mail-Adresse des Löschberechtigten in Cloudflare Access.
+- `BACKUP_DELETE_TOKEN` ist ein Fine-grained GitHub-Token für das Repository
+  `Lennart1978/full-backup` mit **Contents: Read and write**.
+
+Der Löschbutton erscheint in den Details des jeweiligen Laufs. Der Worker
+prüft das signierte Access-Token für die Produktionsadresse und vergleicht
+die Version des Berichtsordners vor dem Löschen mit GitHub. Ein einzelner
+Commit entfernt den gesamten Ordner aus `main`. Der Cloudflare-Worker
+entfernt den Lauf aus der Suche und sperrt die zugehörigen Downloads sofort.
+GitHub Pages übernimmt den Commit beim nächsten Build.
+Ältere Git-Commits behalten ihre Historie. Für eine Wiederveröffentlichung
+eines gelöschten Berichts einen neuen Lauf-Suffix im Ordnernamen verwenden.

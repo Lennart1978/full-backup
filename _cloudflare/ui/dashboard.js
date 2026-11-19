@@ -130,7 +130,54 @@ function drawChanges() {
   container.append(element("p", note, "note"));
 }
 
-function jobTable(r) {
+const deletionDialog = $("delete-dialog");
+const deleteCancel = $("delete-cancel");
+const deleteConfirm = $("delete-confirm");
+let selectedReport;
+
+function confirmDeletion(report) {
+  selectedReport = report;
+  $("delete-target").textContent =
+    typeName(report.type) + " · " + date(report.day) + " · " + time(report) + " · Lauf " + report.run;
+  $("delete-error").textContent = "";
+  deletionDialog.showModal();
+}
+
+deleteCancel.onclick = () => deletionDialog.close();
+deletionDialog.addEventListener("cancel", (event) => {
+  if (deleteConfirm.disabled) event.preventDefault();
+});
+
+deleteConfirm.onclick = async () => {
+  const report = selectedReport;
+  deleteCancel.disabled = deleteConfirm.disabled = true;
+  deleteConfirm.textContent = "Wird gelöscht …";
+  $("delete-error").textContent = "";
+  try {
+    const response = await fetch("/api/runs/" + encodeURIComponent(report.id), {
+      method: "DELETE",
+      headers: { "If-Match": `"${report.tree}"` },
+      redirect: "error",
+    });
+    const result = await response.json();
+    if (!response.ok) {
+      $("delete-error").textContent = result.error || "Die Löschung konnte nicht bestätigt werden.";
+      return;
+    }
+    deletionDialog.close();
+    $("delete-notice").textContent = "Protokoll und zugehörige Dateien gelöscht.";
+    await refresh();
+    $("reports-title").focus();
+  } catch {
+    $("delete-error").textContent =
+      "Die Löschung konnte nicht bestätigt werden. Prüfe deine Anmeldung und versuche es erneut.";
+  } finally {
+    deleteCancel.disabled = deleteConfirm.disabled = false;
+    deleteConfirm.textContent = "Protokoll löschen";
+  }
+};
+
+function jobTable(r, canDelete) {
   const detail = element("div", null, "detail"),
     scroll = element("div", null, "scroll");
   const table = element("table"),
@@ -166,11 +213,17 @@ function jobTable(r) {
     ),
     link,
   );
+  if (canDelete && r.tree) {
+    const button = element("button", "Protokoll löschen", "delete-link");
+    button.type = "button";
+    button.onclick = () => confirmDeletion(r);
+    foot.append(button);
+  }
   detail.append(foot);
   return detail;
 }
 
-function drawReports() {
+function drawReports(canDelete) {
   const container = $("runs");
   container.replaceChildren();
   $("matches").textContent = number(runs.length) + (runs.length === 1 ? " Protokoll" : " Protokolle");
@@ -199,7 +252,7 @@ function drawReports() {
     );
     details.append(row);
     details.addEventListener("toggle", () => {
-      if (details.open && details.children.length === 1) details.append(jobTable(r));
+      if (details.open && details.children.length === 1) details.append(jobTable(r, canDelete));
     });
     container.append(details);
   }
@@ -245,7 +298,7 @@ async function refresh() {
     drawMetrics();
     drawChart();
     drawChanges();
-    drawReports();
+    drawReports(result.canDelete);
     $("message").textContent = "";
     $("content").hidden = false;
   } catch (error) {

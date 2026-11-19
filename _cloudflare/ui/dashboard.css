@@ -523,6 +523,62 @@ footer {
   color: var(--muted);
   font-size: 0.84rem;
 }
+.delete-notice {
+  color: var(--green);
+  margin-top: 0.75rem;
+}
+.delete-notice:empty,
+#delete-error:empty {
+  display: none;
+}
+.delete-link,
+.dialog-button {
+  border: 1px solid var(--control-border);
+  border-radius: 6px;
+  padding: 0.5rem 0.8rem;
+  background: var(--raised);
+}
+.delete-link,
+#delete-error {
+  color: #ffb2bc;
+}
+#delete-dialog {
+  width: min(28rem, calc(100% - 1.5rem));
+  padding: 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--surface);
+  color: inherit;
+}
+#delete-dialog::backdrop {
+  background: #030812c9;
+}
+#delete-dialog p {
+  margin-top: 0.65rem;
+  line-height: 1.5;
+}
+#delete-target {
+  font-weight: 650;
+}
+#delete-description {
+  color: var(--muted);
+}
+.delete-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-top: 1.15rem;
+}
+.danger-button {
+  border-color: #d55366;
+  background: #a8334a;
+  color: white;
+}
+.dialog-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
 @media (max-width: 930px) {
   form {
     grid-template-columns: repeat(4, 1fr);
