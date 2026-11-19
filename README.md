@@ -7,6 +7,3 @@
 - Bash backup script with Python3 for eMail composing and 'rsync' for all file transfer operations.
 
 2026 -=by Lennart Martens=-
-
-
-
