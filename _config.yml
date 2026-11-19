@@ -1,5 +1,9 @@
 title: "Backup Protokolle"
-encoding: utf-8
+encoding: UTF-8
+
+theme: null
+markdown: kramdown
+destination: _site
 
 exclude:
   - Gemfile
@@ -7,6 +11,8 @@ exclude:
   - wrangler.toml
   - wrangler.jsonc
   - README.md
+  - requirements.txt
+  - mkdocs.yml
   - docs
   - vendor
   - node_modules
