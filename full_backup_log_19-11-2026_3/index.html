@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Full Backup Log</title>
+<style>pre {font:inherit; margin:0; white-space:pre-wrap; overflow-wrap:anywhere} a {color:#7dd3fc}
+body {
+    background-color: black;
+    color: #ffffff;
+    font-family: 'FiraCode Nerd Font', monospace;
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+</style>
+</head><body>
+<pre>
+
+▁ ▂ ▄ ▅ ▆ ▇ █ [ Full System Backup ] █ ▇ ▆ ▅ ▄ ▂ ▁
+--------------------------------------------------
+-=Start: 19.11.2026 16:16:08
+-=Quellen: [root:] / ; /boot [home:] /home/lennart
+-=Ziel-Mount: /mnt/SSD2
+--------------------------------------------------
+ ▌│█║▌║▌║ [ (c)2026 LENNART MARTENS ] ║▌║▌║█│▌
+<span style="color:aqua;">Update/Upgrade per Parameter übersprungen.</span>
+<span style="font-weight:bold;color:#3333FF;">-------------------------------------------------------------</span>
+<span style="font-weight:bold;color:#3333FF;">▀▄▀▄▀▄ [ 1/4: Bereite System für das Backup vor ... ] ▄▀▄▀▄▀</span>
+<span style="font-weight:bold;color:#3333FF;">-------------------------------------------------------------</span>
+<span style="font-weight:bold;color:fuchsia;">Stoppe User-Dienst: rclone-gdrive.service</span>
+<span style="font-weight:bold;color:lime;">OK: rclone-gdrive.service gestoppt, Mount ausgehängt.</span>
+<span style="font-weight:bold;color:fuchsia;">Stoppe User-Dienst: rclone-magentacloud.service</span>
+<span style="font-weight:bold;color:lime;">OK: rclone-magentacloud.service gestoppt, Mount ausgehängt.</span>
+<span style="font-weight:bold;color:fuchsia;">Deaktiviere Gnome Extension: GSConnect</span>
+
+
+Prüfe, ob Firefox noch läuft ...
+Firefox läuft nicht.
+
+<span style="color:aqua;">Beende Evolution.</span>
+
+<span style="font-weight:bold;color:fuchsia;">Stoppe User-Dienst: localsearch-3.service</span>
+<span style="font-weight:bold;color:lime;">OK: localsearch-3.service gestoppt.</span>
+<span style="font-weight:bold;color:lime;">OK: localsearch-3-control.service gestoppt.</span>
+<span style="font-weight:bold;color:lime;">OK: tracker-miner-fs-3.service gestoppt.</span>
+<span style="font-weight:bold;color:fuchsia;">Stoppe User-Dienst: evolution-source-registry.service</span>
+<span style="font-weight:bold;color:lime;">OK: evolution-source-registry.service gestoppt.</span>
+<span style="font-weight:bold;color:lime;">OK: evolution-addressbook-factory.service gestoppt.</span>
+<span style="font-weight:bold;color:fuchsia;">Stoppe User-Dienst: evolution-calendar-factory.service</span>
+<span style="font-weight:bold;color:lime;">OK: evolution-calendar-factory.service gestoppt.</span>
+
+<span style="color:aqua;">Bereinige User-Cache ...</span>
+  Verzeichnis gelöscht: ImageMagick
+  Verzeichnis gelöscht: ibus
+  Verzeichnis gelöscht: gsconnect
+  Verzeichnis gelöscht: folks
+  Verzeichnis gelöscht: babl
+  Verzeichnis gelöscht: fontconfig
+  Verzeichnis gelöscht: gegl-0.4
+  Verzeichnis gelöscht: geocode-glib
+  Verzeichnis gelöscht: gstreamer-1.0
+  Verzeichnis gelöscht: gtk-4.0
+  Verzeichnis gelöscht: libgweather
+  Verzeichnis gelöscht: mesa_shader_cache
+  Verzeichnis gelöscht: radv_builtin_shaders
+  Verzeichnis gelöscht: thumbnails
+  Verzeichnis gelöscht: gnome-software
+  Verzeichnis gelöscht: oh-my-posh
+  Verzeichnis gelöscht: glycin
+  Verzeichnis gelöscht: gnome-desktop-thumbnailer
+  Verzeichnis gelöscht: typescript
+  Verzeichnis gelöscht: mozilla
+  Verzeichnis gelöscht: gimp
+  Verzeichnis gelöscht: flatpak
+  Verzeichnis gelöscht: yay
+  Verzeichnis gelöscht: Microsoft
+  Verzeichnis gelöscht: org.gnome.Evolution
+  Verzeichnis gelöscht: evolution
+  Verzeichnis gelöscht: kitty
+  Datei gelöscht: event-sound-cache.tdb.291eb7f13f7e4b79a1948de5507e25ec.x86_64-pc-linux-gnu
+<span style="font-weight:bold;color:lime;">User-Cache-Bereinigung abgeschlossen.</span>
+
+<span style="color:aqua;">Bereinige Root-Cache ...</span>
+  Verzeichnis gelöscht: oh-my-posh
+<span style="font-weight:bold;color:lime;">Root-Cache-Bereinigung abgeschlossen.</span>
+
+
+<span style="font-weight:bold;color:lime;">Vorbereitung erfolgreich abgeschlossen.</span>
+<span style="color:aqua;">System ist für das Backup vorbereitet.</span>
+
+<span style="color:aqua;">Prüfe Backup-SSD unter /mnt/SSD2 ...</span>
+<span style="color:aqua;">Prüfe und aktiviere gegebenenfalls den Datenträger ...</span>
+<span style="font-weight:bold;color:lime;">Backup-SSD erfolgreich eingehängt und überprüft.</span>
+<span style="font-weight:bold;color:fuchsia;">UUID: 578d9f31-f7d3-4ded-b0de-9be0464516bb</span>
+<span style="font-weight:bold;color:fuchsia;">Dateisystem: ext4</span>
+<span style="font-weight:bold;color:fuchsia;">Freier Speicher: 110 GB</span>
+<span style="font-weight:bold;color:#3333FF;">---------------------------------------------------------</span>
+<span style="font-weight:bold;color:#3333FF;">▀▄▀▄▀▄ [ 2/4: Sichere Root - Dateisystem / ... ] ▄▀▄▀▄▀</span>
+<span style="font-weight:bold;color:#3333FF;">---------------------------------------------------------</span>
+<span style="font-weight:bold;color:lime;">Root-Backup erfolgreich.</span>
+<span style="font-weight:bold;color:#3333FF;">----------------------------------------------------------</span>
+<span style="font-weight:bold;color:#3333FF;">▀▄▀▄▀▄ [ 3/4: Sichere EFI - Partition /boot ... ] ▄▀▄▀▄▀</span>
+<span style="font-weight:bold;color:#3333FF;">----------------------------------------------------------</span>
+<span style="font-weight:bold;color:lime;">EFI-Backup erfolgreich.</span>
+<span style="font-weight:bold;color:#3333FF;">---------------------------------------------------------------------</span>
+<span style="font-weight:bold;color:#3333FF;">▀▄▀▄▀▄ [ 4/4: Sichere Home - Verzeichnis /home/lennart ... ] ▄▀▄▀▄▀</span>
+<span style="font-weight:bold;color:#3333FF;">---------------------------------------------------------------------</span>
+<span style="font-weight:bold;color:lime;">Home-Backup erfolgreich.</span>
+
+==========================================================
+         ˙·٠•●♥ [ ROOT-DATEISYSTEM / ] ♥●•٠·˙
+==========================================================
+
+sending incremental file list
+</pre>
+<a href="fullbackup_19-11-2026_16-16.7z" download="fullbackup_19-11-2026_16-16.7z">Dateilisten-Archiv herunterladen (fullbackup_19-11-2026_16-16.7z)</a><br>
+(system_files_19-11-2026_16-16.txt &bull; 83.976 Einträge)
+<div>
+<br>
+<strong style="color:lime; font-size:12px;"><u>-=Rsync: Symbol - Legende=-</u><br></strong>
+<span style="display:inline-block; min-width:260px; margin-right:30px;">
+<strong style="color:fuchsia;">Aktion:</strong>
+<code style="color:aqua;">&gt;</code> = Übertragen
+&nbsp; <code style="color:aqua;">.</code> = Keine Änderung
+</span>
+<span style="display:inline-block; min-width:220px;">
+<strong style="color:fuchsia;">Typ:</strong>
+<code style="color:aqua;">f</code> = Datei
+&nbsp; <code style="color:aqua;">d</code> = Verzeichnis
+</span>
+<div style="margin-top:5px;">
+<strong style="color:fuchsia;">Wichtigste Attribute:</strong>
+&nbsp; <code style="color:aqua;">t</code> = Zeitstempel
+&nbsp; <code style="color:aqua;">c</code> = Inhalt
+&nbsp; <code style="color:aqua;">s</code> = Größe
+&nbsp; <code style="color:aqua;">p</code> = Rechte
+</div>
+</div>
+<pre>
+
+Number of files: 857.205 (reg: 658.230, dir: 51.734, link: 147.233, dev: 1, special: 7)
+Number of created files: 38.238 (reg: 34.700, dir: 3.502, link: 36)
+Number of deleted files: 37.003 (reg: 33.560, dir: 3.431, link: 12)
+Number of regular files transferred: 35.498
+Total file size: 32.3GB
+Total transferred file size: 1.56GB
+Literal data: 1.56GB
+Number of 4 KiB logical blocks touched: 386.493
+Matched data: 0B
+File list size: 9.57MB
+File list generation time: 0,001 seconds
+File list transfer time: 0,000 seconds
+Total bytes sent: 1.60GB
+Total bytes received: 1.81MB
+
+sent 1.60GB  received 1.81MB  36.0MB/sec
+total size is 32.3GB  speedup is 20,20
+
+==========================================================
+        ˙·٠•●♥ [ EFI-PARTITION /boot ] ♥●•٠·˙
+==========================================================
+
+sending incremental file list
+</pre>
+<a href="fullbackup_19-11-2026_16-16.7z" download="fullbackup_19-11-2026_16-16.7z">Dateilisten-Archiv herunterladen (fullbackup_19-11-2026_16-16.7z)</a><br>
+(boot_files_19-11-2026_16-16.txt &bull; 2 Einträge)
+<pre>
+
+Number of files: 27 (reg: 21, dir: 6)
+Number of created files: 0
+Number of deleted files: 0
+Number of regular files transferred: 2
+Total file size: 102MB
+Total transferred file size: 28.7MB
+Literal data: 28.7MB
+Number of 4 KiB logical blocks touched: 7.005
+Matched data: 0B
+File list size: 0B
+File list generation time: 0,001 seconds
+File list transfer time: 0,000 seconds
+Total bytes sent: 28.7MB
+Total bytes received: 58B
+
+sent 28.7MB  received 58B  57.4MB/sec
+total size is 102MB  speedup is 3,55
+
+==========================================================
+    ˙·٠•●♥ [ HOME-VERZEICHNIS /home/lennart ] ♥●•٠·˙
+==========================================================
+
+sending incremental file list
+</pre>
+<a href="fullbackup_19-11-2026_16-16.7z" download="fullbackup_19-11-2026_16-16.7z">Dateilisten-Archiv herunterladen (fullbackup_19-11-2026_16-16.7z)</a><br>
+(home_files_19-11-2026_16-16.txt &bull; 66.246 Einträge)
+<pre>
+
+Number of files: 749.123 (reg: 628.513, dir: 116.194, link: 4.413, special: 3)
+Number of created files: 36.545 (reg: 34.027, dir: 2.496, link: 21, special: 1)
+Number of deleted files: 1.452 (reg: 1.195, dir: 249, link: 8)
+Number of regular files transferred: 57.885
+Total file size: 58.2GB
+Total transferred file size: 2.29GB
+Literal data: 2.29GB
+Number of 4 KiB logical blocks touched: 590.232
+Matched data: 0B
+File list size: 8.06MB
+File list generation time: 0,001 seconds
+File list transfer time: 0,000 seconds
+Total bytes sent: 2.32GB
+Total bytes received: 1.25MB
+
+sent 2.32GB  received 1.25MB  37.7MB/sec
+total size is 58.2GB  speedup is 25,09
+
+<span style="font-weight:bold;color:lime;">°·.¸.·°¯°·.¸.·°¯°·.¸.-&gt; [ GESAMTSTATUS: ALLE BACKUPS ERFOLGREICH! ] &lt;-.¸.·°¯°·.¸.·°¯°·.¸.·°</span>
+
+•♥•♥•♥•♥•♥ [ Ende: 19.11.2026 16:17:57 ] ♥•♥•♥•♥•♥•
+
+</pre>
+</body></html>
