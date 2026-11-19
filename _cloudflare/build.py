@@ -1,8 +1,10 @@
 """Build the Cloudflare assets and import records from the published HTML reports."""
 import hashlib
 import json
+import os
 import re
 import shutil
+import stat
 import subprocess
 from datetime import datetime
 from html.parser import HTMLParser
@@ -147,6 +149,37 @@ def report_trees():
     return trees
 
 
+def git_digest(kind, chunks, size):
+    digest = hashlib.sha1(f"{kind} {size}\0".encode("ascii"), usedforsecurity=False)
+    for chunk in chunks:
+        digest.update(chunk)
+    return digest.digest()
+
+
+def snapshot_tree(folder):
+    """Compute the same tree ID from a source snapshot without Git metadata."""
+    entries = []
+    for child in folder.iterdir():
+        name = os.fsencode(child.name)
+        info = child.lstat()
+        if stat.S_ISDIR(info.st_mode):
+            entries.append((name + b"/", b"40000 " + name + b"\0" + snapshot_tree(child)))
+            continue
+        if stat.S_ISLNK(info.st_mode):
+            mode = b"120000"
+            target = os.fsencode(os.readlink(child))
+            digest = git_digest("blob", [target], len(target))
+        elif stat.S_ISREG(info.st_mode):
+            mode = b"100755" if info.st_mode & stat.S_IXUSR else b"100644"
+            with child.open("rb") as stream:
+                digest = git_digest("blob", iter(lambda: stream.read(65536), b""), info.st_size)
+        else:
+            raise ValueError(f"Unerwarteter Dateityp im Backup-Bericht: {child}")
+        entries.append((name, mode + b" " + name + b"\0" + digest))
+    data = b"".join(entry for _, entry in sorted(entries))
+    return git_digest("tree", [data], len(data))
+
+
 def build():
     assets = DIST / "assets"
     if assets.exists():
@@ -169,7 +202,8 @@ def build():
         record = report(page, match[1], date, int(match[3] or 1))
         payload = json.dumps(record, ensure_ascii=False).encode("utf-8")
         digest = hashlib.sha256(payload).hexdigest()
-        manifest[page.parent.name] = {"digest": digest, "tree": trees.get(page.parent.name)}
+        tree = trees.get(page.parent.name) or snapshot_tree(page.parent).hex()
+        manifest[page.parent.name] = {"digest": digest, "tree": tree}
         (imports / f"{digest}.json").write_bytes(payload)
         dest = assets / page.parent.name
         dest.mkdir()

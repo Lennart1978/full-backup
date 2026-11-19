@@ -6,16 +6,15 @@ function decode(segment) {
   return Uint8Array.from(atob(segment.replaceAll("-", "+").replaceAll("_", "/")), (c) => c.charCodeAt(0));
 }
 
-export async function canDelete(request, env) {
-  if (
-    new URL(request.url).origin !== DASHBOARD_ORIGIN ||
-    !env.BACKUP_DELETE_TOKEN ||
-    !env.BACKUP_DELETE_EMAIL
-  ) {
-    return false;
-  }
-  const token = request.headers.get("Cf-Access-Jwt-Assertion");
-  if (!token || !/^[\w-]+\.[\w-]+\.[\w-]+$/.test(token)) return false;
+export async function deletionAccess(request, env) {
+  if (new URL(request.url).origin !== DASHBOARD_ORIGIN) return "preview";
+  if (!env.BACKUP_DELETE_TOKEN?.trim() || !env.BACKUP_DELETE_EMAIL?.trim()) return "configuration";
+
+  // Browser requests can carry the signed app token in the Access cookie.
+  const token =
+    request.headers.get("Cf-Access-Jwt-Assertion") ||
+    request.headers.get("Cookie")?.match(/(?:^|;\s*)CF_Authorization=([^;]+)/)?.[1];
+  if (!token || !/^[\w-]+\.[\w-]+\.[\w-]+$/.test(token)) return "session";
   try {
     const [header, body, signature] = token.split(".");
     const decoder = new TextDecoder();
@@ -31,20 +30,18 @@ export async function canDelete(request, env) {
       !claims.aud.includes(AUDIENCE) ||
       !Number.isFinite(claims.exp) ||
       claims.exp <= now ||
-      (claims.nbf !== undefined && (!Number.isFinite(claims.nbf) || claims.nbf > now)) ||
-      typeof claims.email !== "string" ||
-      claims.email.toLowerCase() !== env.BACKUP_DELETE_EMAIL.trim().toLowerCase()
+      (claims.nbf !== undefined && (!Number.isFinite(claims.nbf) || claims.nbf > now))
     )
-      return false;
+      return "session";
 
     const response = await fetch(ISSUER + "/cdn-cgi/access/certs", {
       cf: { cacheEverything: true, cacheTtl: 300 },
       redirect: "manual",
     });
-    if (!response.ok) return false;
+    if (!response.ok) return "verification";
     const { keys } = await response.json();
     const jwk = keys.find((key) => key.kid === kid && key.kty === "RSA" && key.alg === "RS256");
-    if (!jwk) return false;
+    if (!jwk) return "verification";
     const key = await crypto.subtle.importKey(
       "jwk",
       jwk,
@@ -52,13 +49,18 @@ export async function canDelete(request, env) {
       false,
       ["verify"],
     );
-    return await crypto.subtle.verify(
+    const verified = await crypto.subtle.verify(
       "RSASSA-PKCS1-v1_5",
       key,
       decode(signature),
       new TextEncoder().encode(header + "." + body),
     );
+    if (!verified) return "session";
+    return typeof claims.email === "string" &&
+      claims.email.trim().toLowerCase() === env.BACKUP_DELETE_EMAIL.trim().toLowerCase()
+      ? "allowed"
+      : "email";
   } catch {
-    return false;
+    return "verification";
   }
 }

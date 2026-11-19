@@ -299,6 +299,16 @@ async function refresh() {
     drawChart();
     drawChanges();
     drawReports(result.canDelete);
+    const deletionMessages = {
+      configuration:
+        "Löschen ist noch nicht verfügbar. Im Worker fehlt die E-Mail-Adresse oder der GitHub-Token.",
+      session: "Löschen ist erst nach einer persönlichen Anmeldung über Cloudflare Access verfügbar.",
+      email:
+        "Deine Cloudflare-Access-Adresse stimmt nicht mit der für das Löschen hinterlegten Adresse überein.",
+      verification:
+        "Cloudflare Access konnte die Löschberechtigung gerade nicht prüfen. Lade die Seite erneut.",
+    };
+    $("delete-availability").textContent = deletionMessages[result.deletionAccess] || "";
     $("message").textContent = "";
     $("content").hidden = false;
   } catch (error) {

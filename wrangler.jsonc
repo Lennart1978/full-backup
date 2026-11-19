@@ -3,6 +3,7 @@
   "main": "_cloudflare/worker.js",
   "compatibility_date": "2026-11-18",
   "workers_dev": true,
+  "keep_vars": true,
   "observability": { "enabled": true },
   "build": {
     "command": "python3 _cloudflare/build.py",

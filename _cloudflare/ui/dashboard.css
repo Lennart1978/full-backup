@@ -527,7 +527,12 @@ footer {
   color: var(--green);
   margin-top: 0.75rem;
 }
+.delete-availability {
+  color: var(--muted);
+  margin-top: 0.75rem;
+}
 .delete-notice:empty,
+.delete-availability:empty,
 #delete-error:empty {
   display: none;
 }

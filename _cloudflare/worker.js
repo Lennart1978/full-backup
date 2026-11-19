@@ -1,6 +1,6 @@
 import { DurableObject } from "cloudflare:workers";
 import manifest from "../.dashboard-dist/manifest.json";
-import { canDelete, DASHBOARD_ORIGIN } from "./access.js";
+import { deletionAccess, DASHBOARD_ORIGIN } from "./access.js";
 import { removeReportFolder } from "./github.js";
 
 function json(body, status = 200) {
@@ -150,15 +150,18 @@ export default {
     const archive = env.ARCHIVE.getByName("backup-reports");
     if (path === "/api/runs") {
       if (request.method !== "GET") return new Response(null, { status: 405, headers: { Allow: "GET" } });
-      const [response, authorized] = await Promise.all([archive.fetch(request), canDelete(request, env)]);
+      const [response, access] = await Promise.all([archive.fetch(request), deletionAccess(request, env)]);
       if (response.status !== 200) return response;
-      return json({ ...(await response.json()), canDelete: authorized });
+      return json({ ...(await response.json()), canDelete: access === "allowed", deletionAccess: access });
     }
     if (path.startsWith("/api/runs/")) {
       if (request.method !== "DELETE") {
         return new Response(null, { status: 405, headers: { Allow: "DELETE" } });
       }
-      if (request.headers.get("Origin") !== DASHBOARD_ORIGIN || !(await canDelete(request, env))) {
+      if (
+        request.headers.get("Origin") !== DASHBOARD_ORIGIN ||
+        (await deletionAccess(request, env)) !== "allowed"
+      ) {
         return json({ error: "Für das Löschen fehlt die Berechtigung." }, 403);
       }
       const id = path.slice("/api/runs/".length);
@@ -188,7 +191,8 @@ export default {
       if (await archive.wasDeleted(folder, manifest[folder].tree)) {
         return new Response(null, { status: 404, headers: { "Cache-Control": "no-store" } });
       }
-      const asset = new Response(await env.ASSETS.fetch(request));
+      const response = await env.ASSETS.fetch(request);
+      const asset = new Response(response.body, response);
       asset.headers.set("Cache-Control", "private, no-store");
       return asset;
     }
