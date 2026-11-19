@@ -1,0 +1,13 @@
+title: "Backup Protokolle"
+encoding: utf-8
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - wrangler.toml
+  - wrangler.jsonc
+  - README.md
+  - docs
+  - vendor
+  - node_modules
+  - .venv
