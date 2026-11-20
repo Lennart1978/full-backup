@@ -71,7 +71,7 @@ function drawMetrics() {
     : "Keine Speicherangabe";
   $("latest").replaceChildren();
   if (runs.length)
-    $("latest").append("Letzter Lauf der Auswahl", element("b", date(runs[0].day) + " · " + time(runs[0])));
+    $("latest").append("Letztes Backup der Auswahl", element("b", date(runs[0].day) + " · " + time(runs[0])));
 }
 
 function drawChart() {

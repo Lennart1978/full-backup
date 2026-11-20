@@ -1,135 +1,128 @@
 <!doctype html>
 <html lang="de">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#0b111c" />
-    <title>Backup-Dashboard · Full Backup</title>
-    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
-    <link rel="stylesheet" href="/dashboard.css" />
-    <script type="module" src="/dashboard.js"></script>
-  </head>
-  <body>
-    <header>
-      <div class="nav wrap">
-        <a class="brand" href="/"
-          ><span class="brand-icon" aria-hidden="true">▰<br />▰</span>Full Backup</a
-        >
-        <nav aria-label="Hauptnavigation">
-          <a href="#uebersicht">Übersicht</a><a href="#protokolle">Protokolle</a>
-        </nav>
-        <span class="host">Cloudflare Workers</span>
-      </div>
-    </header>
-    <main class="wrap" id="uebersicht">
-      <div class="page-title">
-        <div class="title-group">
-          <img
-            class="portrait"
-            src="/bild_192x192.png"
-            alt="Porträt von Lennart Martens"
-            width="192"
-            height="192"
-          />
-          <div>
-            <p class="eyebrow">SYSTEMSICHERUNG</p>
-            <h1>Backup-Dashboard</h1>
-          </div>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="theme-color" content="#0b111c" />
+  <title>Backup-Dashboard · Linux Full Backup</title>
+  <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
+  <link rel="stylesheet" href="/dashboard.css" />
+  <script type="module" src="/dashboard.js"></script>
+</head>
+
+<body>
+  <header>
+    <div class="nav wrap">
+      <a class="brand" href="/"><span class="brand-icon" aria-hidden="true">▰<br />▰</span>˙·٠•●♥ [ by Lennart Martens ]
+        ♥●•٠·˙</a>
+      <nav aria-label="Hauptnavigation">
+        <a href="#uebersicht">Übersicht</a><a href="#protokolle">Protokolle</a>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap" id="uebersicht">
+    <div class="page-title">
+      <div class="title-group">
+        <img class="portrait" src="/bild_192x192.png" alt="Porträt von Lennart Martens" width="192" height="192" />
+        <div>
+          <p class="eyebrow">LINUX-SYSTEM-SICHERUNG</p>
+          <h1>▁ ▂ ▄ ▅ ▆ ▇ █ [ Backup-Dashboard <span id="year">2026</span> ] █ ▇ ▆ ▅ ▄ ▂ ▁</h1>
+          <script>
+            document.getElementById("year").textContent = new Date().getFullYear();
+          </script>
         </div>
-        <div id="latest"></div>
       </div>
-      <form id="filters" role="search">
-        <label class="search"
-          >Protokolle durchsuchen<input
-            id="q"
-            type="search"
-            maxlength="200"
-            placeholder="Suchbegriff im Protokoll"
-        /></label>
-        <label>Von<input id="from" type="date" /></label><label>Bis<input id="to" type="date" /></label>
-        <label
-          >Backup-Typ<select id="type">
-            <option value="">Alle Typen</option>
-          </select></label
-        >
-        <button type="reset">Zurücksetzen</button>
-      </form>
-      <p role="status" id="message">Berichte werden geladen …</p>
-      <noscript>Bitte aktiviere JavaScript für die Suche und Auswertung.</noscript>
-      <div id="content" hidden>
-        <section class="metrics" aria-label="Kennzahlen der Auswahl">
-          <article>
-            <span class="metric-icon" aria-hidden="true">✓</span>
-            <h2>Erfolgsquote</h2>
-            <strong id="rate"></strong><small id="ratesub"></small>
-          </article>
-          <article>
-            <span class="metric-icon" aria-hidden="true">⇅</span>
-            <h2>Übertragene Daten</h2>
-            <strong id="bytes"></strong><small id="bytessub"></small>
-          </article>
-          <article>
-            <span class="metric-icon" aria-hidden="true">◷</span>
-            <h2>Ø Laufzeit</h2>
-            <strong id="duration"></strong><small id="durationsub"></small>
-          </article>
-          <article>
-            <span class="metric-icon" aria-hidden="true">▤</span>
-            <h2>Backup-SSD frei</h2>
-            <strong id="space"></strong><small id="spacesub"></small>
-          </article>
-        </section>
-        <div class="panels">
-          <section class="panel">
-            <div class="panel-heading">
-              <div>
-                <h2>Backup-Verlauf</h2>
-                <p id="historysub"></p>
-              </div>
-              <div class="switch" aria-label="Diagrammwert">
-                <button id="show-time" aria-pressed="true">Laufzeit</button
-                ><button id="show-bytes" aria-pressed="false">Daten</button>
-              </div>
-            </div>
-            <div id="chart"></div>
-          </section>
-          <section class="panel">
-            <div class="panel-heading">
-              <div>
-                <h2>Dateiänderungen</h2>
-                <p>Reguläre Dateien in der Auswahl</p>
-              </div>
-            </div>
-            <div id="changes"></div>
-          </section>
-        </div>
-        <section class="panel logs" id="protokolle">
+      <div id="latest"></div>
+    </div>
+    <form id="filters" role="search">
+      <label class="search">Protokolle durchsuchen<input id="q" type="search" maxlength="200"
+          placeholder="Suchbegriff im Protokoll" /></label>
+      <label>Von<input id="from" type="date" /></label><label>Bis<input id="to" type="date" /></label>
+      <label>Backup-Typ<select id="type">
+          <option value="">Alle Typen</option>
+        </select></label>
+      <button type="reset">Zurücksetzen</button>
+    </form>
+    <p role="status" id="message">Berichte werden geladen …</p>
+    <noscript>Bitte aktiviere JavaScript für die Suche und Auswertung.</noscript>
+    <div id="content" hidden>
+      <section class="metrics" aria-label="Kennzahlen der Auswahl">
+        <article>
+          <span class="metric-icon" aria-hidden="true">✓</span>
+          <h2>Erfolgsquote</h2>
+          <strong id="rate"></strong><small id="ratesub"></small>
+        </article>
+        <article>
+          <span class="metric-icon" aria-hidden="true">⇅</span>
+          <h2>Übertragene Daten</h2>
+          <strong id="bytes"></strong><small id="bytessub"></small>
+        </article>
+        <article>
+          <span class="metric-icon" aria-hidden="true">◷</span>
+          <h2>Ø Laufzeit</h2>
+          <strong id="duration"></strong><small id="durationsub"></small>
+        </article>
+        <article>
+          <span class="metric-icon" aria-hidden="true">▤</span>
+          <h2>Backup-SSD frei</h2>
+          <strong id="space"></strong><small id="spacesub"></small>
+        </article>
+      </section>
+      <div class="panels">
+        <section class="panel">
           <div class="panel-heading">
-            <h2 id="reports-title" tabindex="-1">Backup-Protokolle</h2>
-            <span id="matches"></span>
+            <div>
+              <h2>Backup-Verlauf</h2>
+              <p id="historysub"></p>
+            </div>
+            <div class="switch" aria-label="Diagrammwert">
+              <button id="show-time" aria-pressed="true">Laufzeit</button><button id="show-bytes"
+                aria-pressed="false">Daten</button>
+            </div>
           </div>
-          <p id="delete-notice" class="delete-notice" role="status"></p>
-          <p id="delete-availability" class="delete-availability" role="status"></p>
-          <div id="runs"></div>
+          <div id="chart"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Dateiänderungen</h2>
+              <p>Reguläre Dateien in der Auswahl</p>
+            </div>
+          </div>
+          <div id="changes"></div>
         </section>
       </div>
-    </main>
-    <dialog id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description">
-      <h2 id="delete-title">Protokoll löschen?</h2>
-      <p id="delete-target"></p>
-      <p id="delete-description">
-        Der veröffentlichte Berichtsordner wird mit allen zugehörigen Dateien gelöscht. GitHub Pages übernimmt
-        die Änderung beim nächsten Build.
-      </p>
-      <p id="delete-error" role="alert"></p>
-      <div class="delete-actions">
-        <button id="delete-cancel" class="dialog-button" type="button" autofocus>Abbrechen</button>
-        <button id="delete-confirm" class="dialog-button danger-button" type="button">
-          Protokoll löschen
-        </button>
-      </div>
-    </dialog>
-    <footer class="wrap">Full Backup · Lennart Martens</footer>
-  </body>
+      <section class="panel logs" id="protokolle">
+        <div class="panel-heading">
+          <h2 id="reports-title" tabindex="-1">★·.·´¯`·.·★ [ Protokolle ] ★·.·´¯`·.·★</h2>
+          <span id="matches"></span>
+        </div>
+        <p id="delete-notice" class="delete-notice" role="status"></p>
+        <p id="delete-availability" class="delete-availability" role="status"></p>
+        <div id="runs"></div>
+      </section>
+    </div>
+  </main>
+  <dialog id="delete-dialog" aria-labelledby="delete-title" aria-describedby="delete-description">
+    <h2 id="delete-title">Protokoll löschen?</h2>
+    <p id="delete-target"></p>
+    <p id="delete-description">
+      Der veröffentlichte Berichtsordner wird mit allen zugehörigen Dateien gelöscht. GitHub Pages übernimmt
+      die Änderung beim nächsten Build.
+    </p>
+    <p id="delete-error" role="alert"></p>
+    <div class="delete-actions">
+      <button id="delete-cancel" class="dialog-button" type="button" autofocus>Abbrechen</button>
+      <button id="delete-confirm" class="dialog-button danger-button" type="button">
+        Protokoll löschen
+      </button>
+    </div>
+  </dialog>
+  <footer class="wrap">¤¸¸.•´¯`•¸¸.•.. [ <a
+      href="mailto:linux.system@magenta.de?subject=Linux-Full-Backup">linux.system@magenta.de</a> ] ..•.¸¸•´¯`•.¸¸¤
+  </footer>
+</body>
+
 </html>
